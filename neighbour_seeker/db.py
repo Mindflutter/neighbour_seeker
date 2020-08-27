@@ -32,7 +32,7 @@ async def get_user(conn: connection, user_id: int) -> Optional[dict]:
     logger.debug('Fetching info for user %s', user_id)
     query = 'select name, description, ST_AsText(location) coords from users where id = $1'
     user_row = await conn.fetchrow(query, user_id)
-    return dict(user_row) if user_row else None
+    return user_row if user_row else None
 
 
 async def create_user(conn: connection,
