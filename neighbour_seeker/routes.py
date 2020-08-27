@@ -74,7 +74,6 @@ async def search(request: Request) -> Response:
     jsonschema.validate(payload, validators.search_schema)
     user_id, distance, count = \
         payload['user_id'], payload['distance'], payload['count']
-    user_id = validators.validate_user_id(user_id)
     await get_user_row(request, user_id)
     # kilometers to meters
     distance *= 1000
