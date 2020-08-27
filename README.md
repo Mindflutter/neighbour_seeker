@@ -13,9 +13,8 @@ Task description
 
 У вас десять миллионов пользователей и один вечер :)
 
-TODO (Что можно еще сделать в будущем)
----------------------------------
-- Endpoint tests
+TODO
+----
 - Swagger
 - Auth
 - Content-type validation
