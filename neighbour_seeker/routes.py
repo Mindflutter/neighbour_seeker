@@ -1,9 +1,10 @@
 import logging
+from typing import Union
 
 import jsonschema
 from aiohttp.web import Application, Request, Response, json_response, \
-    HTTPNotFound, HTTPBadRequest
-from typing import Union
+    HTTPNotFound
+
 from neighbour_seeker import db, validators
 
 logger = logging.getLogger(__name__)
@@ -21,12 +22,7 @@ async def get_user_row(request: Request, user_id: int) -> Union[Response, dict]:
 
 async def get_user(request: Request) -> Response:
     """ Get user info by id. """
-    try:
-        user_id = int(request.match_info['user_id'])
-    except ValueError:
-        logger.error('Passed wrong user id: "%s", must be integer',
-                     request.match_info['user_id'])
-        raise HTTPBadRequest(text='User id must be integer')
+    user_id = validators.validate_user_id(request.match_info['user_id'])
     user_info = dict(await get_user_row(request, user_id))
     return json_response(data=user_info, status=200)
 
@@ -48,7 +44,8 @@ async def create_user(request: Request) -> Response:
 @validators.validate_json
 async def update_user(request: Request) -> Response:
     """ Update user information: name, description, coords. """
-    user_id = int(request.match_info['user_id'])
+    user_id = validators.validate_user_id(request.match_info['user_id'])
+    await get_user_row(request, user_id)
     payload = await request.json()
     jsonschema.validate(payload, validators.update_user_schema)
 
@@ -63,12 +60,7 @@ async def update_user(request: Request) -> Response:
 
 async def delete_user(request: Request) -> Response:
     """ Delete a user by id. """
-    try:
-        user_id = int(request.match_info['user_id'])
-    except ValueError:
-        logger.error('Passed wrong user id: "%s", must be integer',
-                     request.match_info['user_id'])
-        raise HTTPBadRequest(text='User id must be integer')
+    user_id = validators.validate_user_id(request.match_info['user_id'])
     await get_user_row(request, user_id)
     async with request.app['db_pool'].acquire() as conn:
         await db.delete_user(conn, user_id)
@@ -82,6 +74,7 @@ async def search(request: Request) -> Response:
     jsonschema.validate(payload, validators.search_schema)
     user_id, distance, count = \
         payload['user_id'], payload['distance'], payload['count']
+    user_id = validators.validate_user_id(user_id)
     await get_user_row(request, user_id)
     # kilometers to meters
     distance *= 1000

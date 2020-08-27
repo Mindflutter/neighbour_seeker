@@ -2,7 +2,7 @@ import logging
 import traceback
 from json.decoder import JSONDecodeError
 
-from aiohttp import web
+from aiohttp.web import HTTPBadRequest
 from jsonschema.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
@@ -93,14 +93,27 @@ search_schema = {
 
 
 def validate_json(func):
+    """ A decorator for handling various JSON errors. """
+
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
         except ValidationError as error:
             # return short description, log full error
             logger.error('JSON Validation error: %s', error)
-            raise web.HTTPBadRequest(text=f'Error: {error.message}')
+            raise HTTPBadRequest(text=f'Error: {error.message}')
         except JSONDecodeError as error:
             logger.error('JSON Decode error: %s', traceback.format_exc())
-            raise web.HTTPBadRequest(text=f'JSON Decode error: {error}')
+            raise HTTPBadRequest(text=f'JSON Decode error: {error}')
+
     return wrapper
+
+
+def validate_user_id(input_user_id):
+    """ Simple integer validator, raises 400 if not ok. """
+    try:
+        return int(input_user_id)
+    except ValueError:
+        logger.error('Passed wrong user id: "%s", must be integer',
+                     input_user_id)
+        raise HTTPBadRequest(text='User id must be integer')
