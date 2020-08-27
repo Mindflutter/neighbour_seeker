@@ -3,10 +3,20 @@ import logging
 import jsonschema
 from aiohttp.web import Application, Request, Response, json_response, \
     HTTPNotFound, HTTPBadRequest
-
+from typing import Union
 from neighbour_seeker import db, validators
 
 logger = logging.getLogger(__name__)
+
+
+async def get_user_row(request: Request, user_id: int) -> Union[Response, dict]:
+    """ Get user DB row, raise 404 if not found. """
+    async with request.app['db_pool'].acquire() as conn:
+        user_row = await db.get_user(conn, user_id)
+    if not user_row:
+        logger.warning('User %s not found', user_id)
+        raise HTTPNotFound(text='User not found')
+    return user_row
 
 
 async def get_user(request: Request) -> Response:
@@ -17,11 +27,7 @@ async def get_user(request: Request) -> Response:
         logger.error('Passed wrong user id: "%s", must be integer',
                      request.match_info['user_id'])
         raise HTTPBadRequest(text='User id must be integer')
-    async with request.app['db_pool'].acquire() as conn:
-        user_info = await db.get_user(conn, user_id)
-    if not user_info:
-        logger.warning('User %s not found', user_id)
-        raise HTTPNotFound(text='User not found')
+    user_info = dict(await get_user_row(request, user_id))
     return json_response(data=user_info, status=200)
 
 
@@ -63,6 +69,7 @@ async def delete_user(request: Request) -> Response:
         logger.error('Passed wrong user id: "%s", must be integer',
                      request.match_info['user_id'])
         raise HTTPBadRequest(text='User id must be integer')
+    await get_user_row(request, user_id)
     async with request.app['db_pool'].acquire() as conn:
         await db.delete_user(conn, user_id)
     return json_response(status=200)
@@ -75,6 +82,7 @@ async def search(request: Request) -> Response:
     jsonschema.validate(payload, validators.search_schema)
     user_id, distance, count = \
         payload['user_id'], payload['distance'], payload['count']
+    await get_user_row(request, user_id)
     # kilometers to meters
     distance *= 1000
     async with request.app['db_pool'].acquire() as conn:
