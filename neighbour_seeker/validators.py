@@ -1,4 +1,6 @@
 import logging
+import traceback
+from json.decoder import JSONDecodeError
 
 from aiohttp import web
 from jsonschema.exceptions import ValidationError
@@ -98,4 +100,7 @@ def validate_json(func):
             # return short description, log full error
             logger.error('JSON Validation error: %s', error)
             raise web.HTTPBadRequest(text=f'Error: {error.message}')
+        except JSONDecodeError as error:
+            logger.error('JSON Decode error: %s', traceback.format_exc())
+            raise web.HTTPBadRequest(text=f'JSON Decode error: {error}')
     return wrapper
