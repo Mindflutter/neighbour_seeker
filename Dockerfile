@@ -4,10 +4,10 @@ COPY . /code
 
 # setup virtualenv
 RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/opt/venv/bin:$PATH" PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # install dependencies and the actual package
-RUN pip install -r /code/requirements.txt && pip install /code
+RUN pip install wheel && pip install -r /code/requirements.txt && pip install /code
 
 # prepare the runtime image
 FROM python:3.8-slim as runtime
