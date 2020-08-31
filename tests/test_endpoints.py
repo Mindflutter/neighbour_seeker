@@ -56,7 +56,7 @@ class TestCreateUser:
 class TestUpdateUser:
 
     async def test_ok(self, client):
-        payload = {'name': 'test', 'description': None, 'latitude': 2, 'longitude': -3}
+        payload = {'name': 'test', 'latitude': 2, 'longitude': -3}
         resp = await client.put('/users/1', json=payload)
         assert resp.status == 200
 
@@ -64,7 +64,7 @@ class TestUpdateUser:
         mock_get_user = CoroutineMock()
         mock_get_user.return_value = None
         monkeypatch.setattr(db, 'get_user', mock_get_user)
-        payload = {'name': 'test', 'description': None, 'latitude': 2, 'longitude': -3}
+        payload = {'name': 'test', 'description': 'something', 'latitude': 2, 'longitude': -3}
         resp = await client.put('/users/1', json=payload)
         assert resp.status == 404
         assert await resp.text() == 'User not found'
@@ -75,8 +75,8 @@ class TestUpdateUser:
         assert await resp.text() == 'User id must be integer'
 
     async def test_bad_payload(self, client):
-        # missing description
-        payload = {'name': 'test', 'latitude': 5, 'longitude': -1}
+        # missing name
+        payload = {'latitude': 5, 'longitude': -1}
         resp = await client.put('/users/1', json=payload)
         assert resp.status == 400
 
