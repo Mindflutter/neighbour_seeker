@@ -30,7 +30,8 @@ async def close_db(app: Application) -> None:
 async def get_user(conn: connection, user_id: int) -> Optional[dict]:
     """ Get user info from DB. """
     logger.debug('Fetching info for user %s', user_id)
-    query = 'select name, description, ST_AsText(location) coords from users where id = $1'
+    query = 'select name, description, ST_X(location) longitude, ' \
+            'ST_Y(location) latitude from users where id = $1'
     user_row = await conn.fetchrow(query, user_id)
     return user_row if user_row else None
 
