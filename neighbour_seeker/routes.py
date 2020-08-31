@@ -24,6 +24,8 @@ async def get_user(request: Request) -> Response:
     """ Get user info by id. """
     user_id = validators.validate_user_id(request.match_info['user_id'])
     user_info = dict(await get_user_row(request, user_id))
+    if not user_info['description']:
+        user_info.pop('description')
     return json_response(data=user_info, status=200)
 
 

@@ -8,12 +8,22 @@ from neighbour_seeker import db
 class TestGetUser:
 
     async def test_ok(self, client, monkeypatch):
-        user_info = {'name': 'test', 'description': None, 'coords': 'POINT(-1 0)'}
+        user_info = {'name': 'test', 'description': 'something', 'latitude': 0, 'longitude': -1}
         mock_get_user = CoroutineMock()
         mock_get_user.return_value = user_info
         monkeypatch.setattr(db, 'get_user', mock_get_user)
         resp = await client.get('/users/1')
         assert resp.status == 200
+        assert await resp.json() == user_info
+
+    async def test_ok_no_description(self, client, monkeypatch):
+        user_info = {'name': 'test', 'description': None, 'latitude': 0, 'longitude': -1}
+        mock_get_user = CoroutineMock()
+        mock_get_user.return_value = user_info
+        monkeypatch.setattr(db, 'get_user', mock_get_user)
+        resp = await client.get('/users/1')
+        assert resp.status == 200
+        user_info.pop('description')
         assert await resp.json() == user_info
 
     async def test_not_found(self, client, monkeypatch):
