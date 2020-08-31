@@ -15,6 +15,5 @@ Task description
 
 TODO
 ----
-- Swagger
 - Auth
 - Content-type validation

@@ -1,0 +1,199 @@
+openapi: '3.0.3'
+info:
+  description: 'This is a page documenting the Neighbour Seeker service API'
+  version: '0.0.1'
+  title: Neighbour Seeker API
+  contact:
+    email: thornograph@gmail.com
+servers:
+  - url: http://localhost/
+    description: Default development environment
+
+tags:
+  - name: Users
+    description: 'User operations'
+  - name: Search
+    description: 'Search operations'
+
+paths:
+  /users:
+    post:
+      tags:
+        - Users
+      summary: 'Create a new user'
+      requestBody:
+        $ref: '#/components/requestBodies/user'
+      responses:
+        '201':
+          $ref: '#/components/responses/user_created'
+        '400':
+          description: Invalid request body
+  /users/{user_id}:
+    get:
+      tags:
+        - Users
+      summary: 'Retrieve user info by id'
+      parameters:
+        - $ref: '#/components/parameters/user_id'
+      responses:
+        '200':
+          description: User info retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '400':
+          description: Invalid user_id
+        '404':
+          $ref: '#/components/responses/user_not_found'
+    put:
+      tags:
+        - Users
+      summary: 'Update user info by id'
+      requestBody:
+        $ref: '#/components/requestBodies/user'
+      parameters:
+        - $ref: '#/components/parameters/user_id'
+      responses:
+        '200':
+          description: User info updated
+        '400':
+          description: Invalid request body or user_id
+        '404':
+          $ref: '#/components/responses/user_not_found'
+    delete:
+      tags:
+        - Users
+      summary: 'Delete user by id'
+      parameters:
+        - $ref: '#/components/parameters/user_id'
+      responses:
+        '200':
+          description: User deleted
+        '400':
+          description: Invalid user_id
+        '404':
+          $ref: '#/components/responses/user_not_found'
+  /search:
+    post:
+      tags:
+        - Search
+      summary: 'Perform KNN search'
+      requestBody:
+        $ref: '#/components/requestBodies/search'
+      responses:
+        '200':
+          $ref: '#/components/responses/search_result'
+        '400':
+          description: Invalid request body or user_id
+        '404':
+          $ref: '#/components/responses/user_not_found'
+
+components:
+  schemas:
+    user_id:
+      type: integer
+      format: int64
+      minimum: 1
+    user:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 64
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        description:
+          type: string
+          maxLength: 256
+      required:
+        - name
+        - latitude
+        - longitude
+      example:
+        name: Karl
+        latitude: 55.758333
+        longitude: 37.619571
+        description: I was right
+    search:
+      type: object
+      properties:
+        user_id:
+          $ref: '#/components/schemas/user_id'
+        count:
+          type: integer
+          description: Number of nearest neighbours to return
+          minimum: 1
+        distance:
+          type: number
+          description: Radius in kilometers
+          # note: modern json schema draft requires only "exclusiveMinimum: 0"
+          minimum: 0
+          exclusiveMinimum: true
+      required:
+        - user_id
+        - count
+        - distance
+      example:
+        user_id: 5
+        count: 12
+        distance: 10.5
+  parameters:
+    user_id:
+      name: user_id
+      in: path
+      description: User ID
+      required: true
+      schema:
+        $ref: '#/components/schemas/user_id'
+  requestBodies:
+    user:
+      description: User object request body
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/user'
+    search:
+      description: Search object request body
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/search'
+  responses:
+    user_created:
+      description: User created successfully
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                $ref: '#/components/schemas/user_id'
+    user_not_found:
+      description: User not found
+      content:
+        text/plain:
+          schema:
+            type: string
+            enum:
+              - 'User not found'
+    search_result:
+      description: Search successful
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/user_id'
+          example:
+            - 2
+            - 4
+            - 11
