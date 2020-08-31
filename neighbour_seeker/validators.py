@@ -37,28 +37,29 @@ user_schema = \
         ]
     }
 
-search_schema = {
-    "type": "object",
-    "properties": {
-        "user_id": {
-            "type": "integer",
-            "minimum": 1
+search_schema = \
+    {
+        "type": "object",
+        "properties": {
+            "user_id": {
+                "type": "integer",
+                "minimum": 1
+            },
+            "count": {
+                "type": "integer",
+                "minimum": 1
+            },
+            "distance": {
+                "type": "number",
+                "exclusiveMinimum": 0
+            }
         },
-        "count": {
-            "type": "integer",
-            "minimum": 1
-        },
-        "distance": {
-            "type": "number",
-            "exclusiveMinimum": 0,
-        },
-    },
-    "required": [
-        "user_id",
-        "count",
-        "distance"
-    ]
-}
+        "required": [
+            "user_id",
+            "count",
+            "distance"
+        ]
+    }
 
 
 def validate_json(func):
