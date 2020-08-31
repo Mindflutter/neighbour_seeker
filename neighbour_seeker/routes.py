@@ -31,7 +31,7 @@ async def get_user(request: Request) -> Response:
 async def create_user(request: Request) -> Response:
     """ Create a single user. """
     payload = await request.json()
-    jsonschema.validate(payload, validators.create_user_schema)
+    jsonschema.validate(payload, validators.user_schema)
     name, latitude, longitude, description = \
         payload['name'], payload['latitude'], \
         payload['longitude'], payload.get('description')
@@ -47,12 +47,12 @@ async def update_user(request: Request) -> Response:
     user_id = validators.validate_user_id(request.match_info['user_id'])
     await get_user_row(request, user_id)
     payload = await request.json()
-    jsonschema.validate(payload, validators.update_user_schema)
+    jsonschema.validate(payload, validators.user_schema)
 
     # all update fields must be present
     name, latitude, longitude, description = \
         payload['name'], payload['latitude'], \
-        payload['longitude'], payload['description']
+        payload['longitude'], payload.get('description')
     async with request.app['db_pool'].acquire() as conn:
         await db.update_user(conn, name, latitude, longitude, description, user_id)
     return json_response(status=200)

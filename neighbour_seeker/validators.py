@@ -7,7 +7,7 @@ from jsonschema.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
-create_user_schema = \
+user_schema = \
     {
         "type": "object",
         "properties": {
@@ -34,37 +34,6 @@ create_user_schema = \
             "name",
             "latitude",
             "longitude"
-        ]
-    }
-
-update_user_schema = \
-    {
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string",
-                "maxLength": 64
-            },
-            "latitude": {
-                "type": "number",
-                "minimum": -90,
-                "maximum": 90
-            },
-            "longitude": {
-                "type": "number",
-                "minimum": -180,
-                "maximum": 180
-            },
-            "description": {
-                "type": ["string", "null"],
-                "maxLength": 256
-            }
-        },
-        "required": [
-            "name",
-            "latitude",
-            "longitude",
-            "description"
         ]
     }
 
