@@ -152,3 +152,8 @@ class TestSearch:
     async def test_no_payload(self, client):
         resp = await client.post('/search')
         assert resp.status == 400
+
+
+async def test_doc(client):
+    resp = await client.get('/doc')
+    assert resp.status == 200
