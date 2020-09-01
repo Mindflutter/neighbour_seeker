@@ -17,3 +17,4 @@ TODO
 ----
 - Auth
 - Content-type validation
+- Figure out how to split openapi.yml into several files correctly

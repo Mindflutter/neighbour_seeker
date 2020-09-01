@@ -6,7 +6,7 @@ info:
   contact:
     email: thornograph@gmail.com
 servers:
-  - url: http://localhost/
+  - url: http://localhost:8080/
     description: Default development environment
 
 tags:

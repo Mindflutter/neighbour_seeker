@@ -1,3 +1,4 @@
 aiohttp==3.6.2
+aiohttp-swagger==1.0.15
 asyncpg==0.21.0
 jsonschema==3.2.0

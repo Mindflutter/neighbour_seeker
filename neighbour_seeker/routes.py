@@ -1,9 +1,11 @@
 import logging
+from pathlib import Path
 from typing import Union
 
 import jsonschema
 from aiohttp.web import Application, Request, Response, json_response, \
     HTTPNotFound
+from aiohttp_swagger import setup_swagger
 
 from neighbour_seeker import db, validators
 
@@ -91,4 +93,8 @@ def setup_routes(app: Application) -> None:
     app.router.add_put('/users/{user_id}', update_user)
     app.router.add_delete('/users/{user_id}', delete_user)
     app.router.add_post('/search', search)
+
+    openapi_path = Path(__file__).parent / 'resources' / 'openapi.yml'
+    setup_swagger(app, swagger_url="/doc", ui_version=3,
+                  swagger_from_file=openapi_path)
     logger.info('App routes initialized')

@@ -19,6 +19,7 @@ setup(
     python_requires='~=3.8.0',
     version=version,
     packages=find_packages(exclude=['tests']),
+    package_data={'neighbour_seeker': ['resources/*']},
     entry_points={
         'console_scripts': [
             'neighbour-seeker = neighbour_seeker.main:main'
