@@ -18,6 +18,7 @@ LOGGING_CONFIG = {
             'level': LOGGING_LEVEL,
             'formatter': 'app',
             'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stdout'
         },
     },
     'loggers': {
