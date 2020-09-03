@@ -1,17 +1,36 @@
+import asyncio
 import logging
+import sys
 from typing import Optional
 
 from aiohttp.web import Application
 from asyncpg import create_pool, connection
+from asyncpg.exceptions import ConnectionDoesNotExistError
 
 from neighbour_seeker import config
 
 logger = logging.getLogger(__name__)
 
 
+async def get_db_pool():
+    """ DB related initialization: connection pool. """
+    tries = 0
+    while tries < 10:
+        try:
+            pool = await create_pool(dsn=config.PG_DSN, max_size=config.PG_POOL_SIZE, timeout=30)
+            return pool
+        except (OSError, ConnectionDoesNotExistError):
+            logger.info('Waiting for DB')
+            await asyncio.sleep(1)
+            tries += 1
+    # love the pun here
+    logger.error('Awaited DB connection for too long, shutting down')
+    sys.exit('DB connection error')
+
+
 async def init_db(app: Application) -> None:
-    """ DB related initialization: pool, table, index. """
-    pool = await create_pool(dsn=config.PG_DSN, max_size=config.PG_POOL_SIZE, timeout=30)
+    """ DB related initialization: table, index. """
+    pool = await get_db_pool()
     async with pool.acquire() as conn:
         await conn.execute('create table if not exists users'
                            ' (id serial primary key, name varchar(64),'
