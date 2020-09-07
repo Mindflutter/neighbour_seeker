@@ -63,7 +63,7 @@ search_schema = \
     }
 
 
-def validate_payload(schema):
+def validate_payload(schema: dict):
     """ Validate payload according to the provided schema. """
 
     def validate_json(func):

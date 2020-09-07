@@ -6,13 +6,14 @@ from typing import Optional
 from aiohttp.web import Application
 from asyncpg import create_pool, connection
 from asyncpg.exceptions import ConnectionDoesNotExistError
+from asyncpg.pool import Pool
 
 from neighbour_seeker import config
 
 logger = logging.getLogger(__name__)
 
 
-async def get_db_pool():
+async def get_db_pool() -> Pool:
     """ DB related initialization: connection pool. """
     tries = 0
     while tries < 10:
