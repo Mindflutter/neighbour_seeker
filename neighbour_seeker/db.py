@@ -22,7 +22,7 @@ async def get_db_pool() -> Pool:
             return pool
         except (OSError, ConnectionDoesNotExistError):
             logger.info('Waiting for DB')
-            await asyncio.sleep(1)
+            await asyncio.sleep(2 ** tries)
             tries += 1
     # love the pun here
     logger.error('Awaited DB connection for too long, shutting down')
